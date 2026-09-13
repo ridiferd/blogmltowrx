@@ -5,3 +5,4 @@ output-sample/
 input/
 *.user
 ci-output/
+.vs/
