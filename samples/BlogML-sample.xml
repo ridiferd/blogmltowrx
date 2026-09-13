@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<blog xmlns="http://www.blogml.com/2006/09/BlogML" root-url="https://ridilabs.net/" date-created="2026-01-05T10:00:00">
+  <title type="text">RidiLabs</title>
+  <sub-title type="text">.NET engineering notes</sub-title>
+  <authors>
+    <author id="ridi" email="ridi@ridilabs.net" date-created="2015-01-01T00:00:00" approved="true">
+      <title type="text">Ridi Ferdiana</title>
+    </author>
+  </authors>
+  <categories>
+    <category id="cat-1" date-created="2015-01-01T00:00:00" approved="true" parentref="">
+      <title type="text">ASP.NET Core</title>
+    </category>
+    <category id="cat-2" date-created="2015-01-01T00:00:00" approved="true" parentref="">
+      <title type="text">DevSecOps</title>
+    </category>
+  </categories>
+  <posts>
+    <post id="9f1c2b30-1111-4a2b-9c3d-aaaabbbbcccc" date-created="2025-03-12T08:30:00" date-modified="2025-03-12T09:00:00" approved="true" post-url="https://ridilabs.net/post/minimal-api-validation.aspx" type="normal" hasexcerpt="true">
+      <title type="text">Minimal API Validation in .NET 8</title>
+      <content type="html"><![CDATA[<p>Minimal API needs explicit validation. Here is the endpoint filter I use.</p>
+<pre class="brush: csharp;">public sealed class ValidationFilter&lt;T&gt; : IEndpointFilter
+{
+    public async ValueTask&lt;object?&gt; InvokeAsync(EndpointFilterInvocationContext ctx, EndpointFilterDelegate next)
+    {
+        return await next(ctx);
+    }
+}</pre>
+<p>The diagram below shows the pipeline.</p>
+<p><img src="/image.axd?picture=/2025/03/pipeline.png" alt="Pipeline" /></p>
+<ul><li>Fast</li><li>Testable</li></ul>]]></content>
+      <post-name type="text">minimal-api-validation</post-name>
+      <excerpt type="text">An endpoint filter that keeps Minimal API validation clean.</excerpt>
+      <categories><category ref="cat-1" /></categories>
+      <tags><tag ref="dotnet8" /><tag ref="minimal-api" /></tags>
+      <authors><author ref="ridi" /></authors>
+      <comments>
+        <comment id="c1" date-created="2025-03-13T02:00:00" approved="true" user-name="Andi" user-email="andi@example.com" user-url="">
+          <title type="text" />
+          <content type="text"><![CDATA[Very useful, thanks.]]></content>
+        </comment>
+      </comments>
+    </post>
+    <post id="9f1c2b30-2222-4a2b-9c3d-ddddeeeeffff" date-created="2024-11-02T14:15:00" date-modified="2024-11-02T14:15:00" approved="true" post-url="https://ridilabs.net/post/azure-devops-gate.aspx" type="normal">
+      <title type="text">Security Gates in Azure DevOps</title>
+      <content type="html"><![CDATA[<h2>Why gates matter</h2><p>Pipelines without gates ship risk.</p><p><a href="/file.axd?file=/2024/11/gate-checklist.pdf">Download the checklist</a></p>]]></content>
+      <post-name type="text">azure-devops-gate</post-name>
+      <categories><category ref="cat-2" /></categories>
+      <tags><tag ref="devsecops" /></tags>
+      <authors><author ref="ridi" /></authors>
+    </post>
+  </posts>
+</blog>
