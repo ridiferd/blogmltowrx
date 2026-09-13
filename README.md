@@ -86,7 +86,7 @@ dotnet run -- --input ../../samples/BlogML-sample.xml --output ../../output-samp
 
 Pick the track that matches your hosting access.
 
-*Track A, wp-admin only, no FTP and no File Manager (this is the ridilabs.net track)*
+*Track A, wp-admin only, no FTP and no File Manager (this is the my track)*
 
 Run the converter with `"MediaMode": "flat"` and `"MediaBaseUrl": "/wp-content/uploads/"`. Every asset is collapsed into one folder with WordPress safe, collision free file names, split into `batch-01`, `batch-02` and so on at 100 files each.
 
@@ -97,7 +97,7 @@ Run the converter with `"MediaMode": "flat"` and `"MediaBaseUrl": "/wp-content/u
 
 Why not let WordPress download the images from the old site instead: BlogEngine serves media through `image.axd?picture=...`, so the sideloader derives the file name `image.axd`, and WordPress rejects that extension. Every sideload plugin hits the same wall.
 
-*Track B, FTP, SSH or cPanel File Manager available*
+*Track B, FTP, SSH or cPanel File Manager available for example in your own wordpress*
 
 Run with `"MediaMode": "path"` and `"MediaBaseUrl": "/wp-content/uploads/ridilabs/"`, then copy `output/media/` into `wp-content/uploads/ridilabs/` and register the files:
 
