@@ -32,7 +32,12 @@ public sealed class MediaDownloader
         foreach (var asset in assets)
         {
             index++;
-            var destination = Path.Combine(_options.MediaOutputDirectory, asset.RelativePath.Replace('/', Path.DirectorySeparatorChar));
+            // In flat mode the files are split into batches of 100 so the Media Library
+            // drag and drop uploader can swallow them without a browser timeout.
+            var destination = _options.FlatMedia
+                ? Path.Combine(_options.MediaOutputDirectory, $"batch-{((index - 1) / 100) + 1:00}", asset.TargetPath)
+                : Path.Combine(_options.MediaOutputDirectory, asset.TargetPath.Replace('/', Path.DirectorySeparatorChar));
+
             Directory.CreateDirectory(Path.GetDirectoryName(destination)!);
 
             if (File.Exists(destination))
@@ -77,11 +82,12 @@ public sealed class MediaDownloader
 
     public void WriteManifest(IReadOnlyCollection<MediaAsset> assets)
     {
-        var manifest = new StringBuilder("relative_path,original_url,new_url,downloaded,error\n");
+        var manifest = new StringBuilder("source_path,target_path,original_url,new_url,downloaded,error\n");
 
         foreach (var asset in assets)
         {
             manifest.Append(asset.RelativePath).Append(',')
+                    .Append(asset.TargetPath).Append(',')
                     .Append(asset.OriginalAbsoluteUrl).Append(',')
                     .Append(asset.NewUrl).Append(',')
                     .Append(asset.Downloaded ? "yes" : "no").Append(',')

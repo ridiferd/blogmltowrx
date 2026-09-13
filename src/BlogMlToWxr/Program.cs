@@ -21,6 +21,7 @@ try
     Console.WriteLine($"  output     : {Path.GetFullPath(options.OutputDirectory)}");
     Console.WriteLine($"  site       : {options.SiteUrl}");
     Console.WriteLine($"  media base : {options.MediaBaseUrl}");
+    Console.WriteLine($"  media mode : {options.MediaMode}{(options.FlatMedia ? "  (Media Library drag and drop, no FTP needed)" : "  (preserves year/month folders)")}");
     Console.WriteLine();
 
     Directory.CreateDirectory(options.OutputDirectory);
@@ -122,6 +123,7 @@ static void PrintHelp()
           --output <dir>       Output directory
           --site <url>         Old site root, for example https://ridilabs.net
           --media-base <path>  Target uploads path, default /wp-content/uploads/ridilabs/
+          --media-mode <mode>  path (keep folders, needs FTP) or flat (Media Library upload)
           --max-items <n>      Items per WXR file, keeps each file under the upload limit
           --download-media     Fetch every referenced asset from the live site
           --no-media           Skip downloading, write the manifest only

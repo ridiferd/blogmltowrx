@@ -57,14 +57,19 @@ public sealed class BlogPost
 
 public sealed class MediaAsset
 {
-    public MediaAsset(string relativePath, string originalAbsoluteUrl, string newUrl)
+    public MediaAsset(string relativePath, string targetPath, string originalAbsoluteUrl, string newUrl)
     {
         RelativePath = relativePath;
+        TargetPath = targetPath;
         OriginalAbsoluteUrl = originalAbsoluteUrl;
         NewUrl = newUrl;
     }
 
+    /// <summary>Path as it existed on the BlogEngine site, for example 2025/03/pipeline.png.</summary>
     public string RelativePath { get; }
+
+    /// <summary>Path relative to the WordPress uploads root after migration.</summary>
+    public string TargetPath { get; }
     public string OriginalAbsoluteUrl { get; }
     public string NewUrl { get; }
     public bool Downloaded { get; set; }

@@ -16,6 +16,14 @@ public sealed class MigrationOptions
     public string Language { get; set; } = "en-US";
 
     public string MediaBaseUrl { get; set; } = "/wp-content/uploads/blog/";
+
+    /// <summary>
+    /// "path" keeps the original year/month folders (needs FTP, SSH or File Manager).
+    /// "flat" collapses every asset into one folder with unique, WordPress safe file names,
+    /// which is what the Media Library drag and drop uploader produces when the
+    /// month and year folder option is turned off.
+    /// </summary>
+    public string MediaMode { get; set; } = "path";
     public bool DownloadMedia { get; set; } = true;
     public int MediaDownloadDelayMs { get; set; } = 150;
 
@@ -28,7 +36,10 @@ public sealed class MigrationOptions
     public int MaxItemsPerFile { get; set; } = 200;
 
     [JsonIgnore]
-    public string MediaOutputDirectory => Path.Combine(OutputDirectory, "media");
+    public bool FlatMedia => MediaMode.Equals("flat", StringComparison.OrdinalIgnoreCase);
+
+    [JsonIgnore]
+    public string MediaOutputDirectory => Path.Combine(OutputDirectory, FlatMedia ? "media-flat" : "media");
 
     public static MigrationOptions Load(string[] args)
     {
@@ -55,6 +66,7 @@ public sealed class MigrationOptions
         options.OutputDirectory = FindArg(args, "--output") ?? options.OutputDirectory;
         options.SiteUrl = FindArg(args, "--site") ?? options.SiteUrl;
         options.MediaBaseUrl = FindArg(args, "--media-base") ?? options.MediaBaseUrl;
+        options.MediaMode = FindArg(args, "--media-mode") ?? options.MediaMode;
 
         if (HasFlag(args, "--no-media")) options.DownloadMedia = false;
         if (HasFlag(args, "--download-media")) options.DownloadMedia = true;
@@ -65,6 +77,10 @@ public sealed class MigrationOptions
         if (int.TryParse(maxItems, out var parsed) && parsed > 0) options.MaxItemsPerFile = parsed;
 
         options.SiteUrl = options.SiteUrl.TrimEnd('/');
+        options.MediaMode = options.MediaMode.Trim().ToLowerInvariant();
+
+        if (options.MediaMode is not ("path" or "flat"))
+            throw new ArgumentException($"MediaMode must be 'path' or 'flat', got '{options.MediaMode}'.");
         if (!options.MediaBaseUrl.EndsWith('/')) options.MediaBaseUrl += "/";
 
         return options;

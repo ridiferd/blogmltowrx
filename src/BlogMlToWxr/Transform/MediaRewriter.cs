@@ -15,6 +15,7 @@ public sealed class MediaRewriter
 
     private readonly MigrationOptions _options;
     private readonly Dictionary<string, MediaAsset> _assets = new(StringComparer.OrdinalIgnoreCase);
+    private readonly HashSet<string> _usedTargetNames = new(StringComparer.OrdinalIgnoreCase);
 
     public MediaRewriter(MigrationOptions options) => _options = options;
 
@@ -58,14 +59,76 @@ public sealed class MediaRewriter
         var relativePath = ExtractRelativeMediaPath(url);
         if (relativePath is null) return null;
 
-        var newUrl = _options.MediaBaseUrl + relativePath;
+        if (_assets.TryGetValue(relativePath, out var existing))
+            return existing.NewUrl;
 
-        if (!_assets.ContainsKey(relativePath))
-        {
-            _assets[relativePath] = new MediaAsset(relativePath, ToAbsolute(url), newUrl);
-        }
+        var targetPath = _options.FlatMedia ? BuildFlatName(relativePath) : relativePath;
+        var newUrl = _options.MediaBaseUrl + targetPath;
+
+        _assets[relativePath] = new MediaAsset(relativePath, targetPath, ToAbsolute(url), newUrl);
 
         return newUrl;
+    }
+
+    /// <summary>
+    /// Mirrors what WordPress does to a file name on upload, then guarantees uniqueness
+    /// the same way WordPress does, by appending -1, -2 and so on.
+    /// </summary>
+    private string BuildFlatName(string relativePath)
+    {
+        var fileName = Path.GetFileName(relativePath);
+        var extension = Path.GetExtension(fileName);
+        var stem = Path.GetFileNameWithoutExtension(fileName);
+
+        stem = SanitizeFileNamePart(stem);
+        extension = SanitizeFileNamePart(extension.TrimStart('.'));
+
+        if (string.IsNullOrWhiteSpace(stem)) stem = "file";
+
+        var candidate = string.IsNullOrWhiteSpace(extension) ? stem : $"{stem}.{extension}";
+
+        if (_usedTargetNames.Add(candidate)) return candidate;
+
+        var counter = 1;
+        string unique;
+        do
+        {
+            unique = string.IsNullOrWhiteSpace(extension) ? $"{stem}-{counter}" : $"{stem}-{counter}.{extension}";
+            counter++;
+        }
+        while (!_usedTargetNames.Add(unique));
+
+        return unique;
+    }
+
+    private static string SanitizeFileNamePart(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value)) return string.Empty;
+
+        var decomposed = value.Normalize(System.Text.NormalizationForm.FormD);
+        var builder = new System.Text.StringBuilder(decomposed.Length);
+
+        foreach (var character in decomposed)
+        {
+            if (System.Globalization.CharUnicodeInfo.GetUnicodeCategory(character)
+                == System.Globalization.UnicodeCategory.NonSpacingMark) continue;
+
+            if (char.IsLetterOrDigit(character) || character is '-' or '_')
+            {
+                builder.Append(character);
+            }
+            else
+            {
+                builder.Append('-');
+            }
+        }
+
+        var cleaned = builder.ToString().Normalize(System.Text.NormalizationForm.FormC);
+
+        while (cleaned.Contains("--", StringComparison.Ordinal))
+            cleaned = cleaned.Replace("--", "-", StringComparison.Ordinal);
+
+        return cleaned.Trim('-', '_');
     }
 
     private string? ExtractRelativeMediaPath(string url)
